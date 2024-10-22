@@ -39,7 +39,7 @@ async function run() {
 
     // middlewares
     const verifyToken = (req, res, next) => {
-      console.log(req.headers.authorization);
+      //   console.log(req.headers.authorization);
       if (!req.headers.authorization) {
         return res.status(401).send({ message: "unauthorized access" });
       }
@@ -129,9 +129,38 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/menu/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: id };
+      const result = await menuCollection.findOne(query);
+      res.send(result);
+    });
+
     app.post("/menu", verifyToken, verifyAdmin, async (req, res) => {
       const menuItem = req.body;
       const result = await menuCollection.insertOne(menuItem);
+      res.send(result);
+    });
+
+    app.patch("/menu/:id", verifyToken, verifyAdmin, async (req, res) => {
+      const menuItem = req.body;
+      const id = req.params.id;
+      const filter = { _id: id };
+      const updateDoc = {
+        $set: {
+          ...menuItem,
+        },
+      };
+      console.log(filter, updateDoc);
+      const result = await userCollection.updateOne(filter, updateDoc);
+      console.log(result);
+      res.send(result);
+    });
+
+    app.delete("/menu/:id", verifyToken, verifyAdmin, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await menuCollection.deleteOne(query);
       res.send(result);
     });
 
